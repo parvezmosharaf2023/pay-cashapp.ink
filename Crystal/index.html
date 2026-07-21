@@ -308,10 +308,11 @@ async function submitPayment() {
       amount: Number(data.amount), invoiceId: data.invoiceId, paymentType: 'lightning',
       payCode: bolt11, qrText: bolt11, cashAppUrl: `https://cash.app/launch/lightning/${bolt11}`,
       secondsLeft: BTC_SECONDS, expiresAt: data.expiresAt || null,
+      returnUrl: window.location.pathname // 🟢 এই লাইনটি যুক্ত করা হয়েছে
     };
-
+    
     sessionStorage.setItem('invoiceSession', JSON.stringify(session));
-    window.location.href = '/pay/invoice-btc.html'; 
+    window.location.href = '/pay/invoice-btc.html';
   } catch (e) {
     hideLoading();
     alert(`Error: ${e.message}`);
