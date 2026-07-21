@@ -159,6 +159,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let timerInterval, pollInterval;
 let currentPayCode = '';
+let returnPage = '/'; // 🟢 ডাইনামিক রিটার্ন পেজ ট্র্যাকিং
 
 function showStep(n) {
   document.getElementById('step2').style.display = n === 2 ? 'flex' : 'none';
@@ -167,11 +168,12 @@ function showStep(n) {
 
 window.addEventListener('DOMContentLoaded', () => {
   const saved = sessionStorage.getItem('invoiceSession');
-  if (!saved) { window.location.href = '../index.html'; return; }
+  if (!saved) { window.history.back(); return; } // 🟢 সেশন না থাকলে আগের পেজে পাঠাবে
+  
   const data = JSON.parse(saved);
   currentPayCode = data.payCode || data.qrText;
+  returnPage = data.returnUrl || '/'; // 🟢 যেখান থেকে এসেছে, সেই পেজের লিংক সেভ করবে
 
-  // QR Code size slightly reduced to prevent scrolling
   new QRCode(document.getElementById('qrcode'), { text: data.cashAppUrl || currentPayCode, width: 190, height: 190 });
   document.getElementById('qrLink').href = data.cashAppUrl || '#';
 
@@ -217,7 +219,7 @@ function startTimer(sec, invoiceId) {
       clearInterval(timerInterval);
       clearInterval(pollInterval);
       sessionStorage.removeItem('invoiceSession');
-      window.location.href = '../index.html'; 
+      window.location.href = returnPage; // 🟢 ডাইনামিক রিটার্ন
       return;
     }
     const saved = sessionStorage.getItem('invoiceSession');
@@ -255,15 +257,17 @@ function startPolling(invoiceId, amount) {
   }, 5000);
 }
 
+// 🟢 ডাইনামিক গো ব্যাক ফাংশন
 function goBack() { 
     clearInterval(timerInterval);
     clearInterval(pollInterval);
-    window.location.href = '../index.html'; 
+    window.location.href = returnPage; 
 }
 
+// 🟢 ডাইনামিক ক্লিয়ার সেশন
 function clearSession() {
   sessionStorage.removeItem('invoiceSession');
-  window.location.href = '../index.html';
+  window.location.href = returnPage;
 }
 </script>
 </body>
