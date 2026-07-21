@@ -94,7 +94,7 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 .m-invoice { font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
 .m-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
 .m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
-.model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); }
+.model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); display: inline-block;}
 
 /* ══════ BADGES & BUTTONS ══════ */
 .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
@@ -187,6 +187,7 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search Invoice or Model..." oninput="resetAndRenderPayments()">
         <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
       </div>
+      
       <div class="table-wrap">
         <div class="table-scroll">
           <table>
@@ -205,6 +206,12 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
             </tbody>
           </table>
         </div>
+        
+        <!-- 🟢 এই মোবাইল লিস্ট ডিভটি আগের কোডে মিসিং ছিল 🟢 -->
+        <div class="mobile-list" id="mobilePaymentsList">
+          <div class="m-empty">Loading...</div>
+        </div>
+
         <div class="pagination" id="payPagination"></div>
         <div class="table-footer" id="paymentsFooter"></div>
       </div>
@@ -303,14 +310,24 @@ async function loadData() {
   el.classList.add('show');
 }
 
-// 🟢 Fetch ALL Payments (No Filters)
+// 🟢 Fetch ALL Payments (No Filters) + Expiration Logic Added
 async function fetchPayments() {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/payments?select=*&order=created_at.desc`, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
     });
     let data = await res.json();
-    if (!data.error) allPayments = data;
+    if (!data.error) {
+        const now = new Date();
+        allPayments = data.map(p => {
+          p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
+          if (p.status === 'new' || p.status === 'pending') {
+            const diffMin = (now - new Date(p.created_at)) / 60000;
+            if (diffMin > p._expireMins) p._uiExpired = true;
+          }
+          return p;
+        });
+    }
   } catch(e) { console.error(e); }
 }
 
@@ -381,18 +398,23 @@ function renderPayments() {
 
   const filtered = allPayments.filter(p => {
     let es = p.status;
+    if (p._uiExpired) es = 'expired';
     const model = extractModelName(p.source).toLowerCase();
     
-    if (statusFilter && es !== statusFilter) return false;
+    if (statusFilter === 'pending' && (es !== 'pending' && es !== 'new')) return false;
+    else if (statusFilter && statusFilter !== 'pending' && es !== statusFilter) return false;
+
     if (search && !(p.invoice_id||'').toLowerCase().includes(search) && !model.includes(search)) return false;
     return true;
   });
 
   const tbody = document.getElementById('paymentsBody');
+  const mList = document.getElementById('mobilePaymentsList'); // 🟢 Mobile Element
   const pagUI = document.getElementById('payPagination');
 
   if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="6" class="m-empty">No payments found</td></tr>';
+    mList.innerHTML = '<div class="m-empty">No payments found</div>';
     pagUI.innerHTML = '';
     document.getElementById('paymentsFooter').textContent = '';
     return;
@@ -403,7 +425,10 @@ function renderPayments() {
   const start = (currentPayPage - 1) * PER_PAGE;
   const paginated = filtered.slice(start, start + PER_PAGE);
 
+  // 🟢 Desktop Rendering
   tbody.innerHTML = paginated.map((p) => {
+    let es = p.status;
+    if (p._uiExpired) es = 'expired';
     const shortId = (p.invoice_id||'').substring(0,18) + '...';
     const isMarked = p.is_marked === true;
     const model = extractModelName(p.source);
@@ -412,10 +437,36 @@ function renderPayments() {
       <td><span class="model-badge">${model}</span></td>
       <td><div style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.55);">${shortId}</div></td>
       <td style="font-weight:800;color:#fff;font-size:15px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
-      <td><span class="badge ${p.status}"><span class="badge-dot"></span>${p.status}</span></td>
+      <td><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></td>
       <td>${isMarked ? '<span style="color:#00D632;font-weight:bold;">✓ Marked</span>' : '<span style="color:rgba(255,255,255,0.3);">No</span>'}</td>
       <td style="color:rgba(255,255,255,0.35);font-size:12px;">${new Date(p.created_at).toLocaleDateString()}</td>
     </tr>`;
+  }).join('');
+
+  // 🟢 Mobile Rendering (Added properly)
+  mList.innerHTML = paginated.map((p) => {
+    let es = p.status;
+    if (p._uiExpired) es = 'expired';
+    const shortId = (p.invoice_id||'').substring(0,22) + '...';
+    const isMarked = p.is_marked === true;
+    const model = extractModelName(p.source);
+    
+    return `<div class="m-card ${isMarked ? 'is-marked' : ''}">
+      <div class="m-row">
+        <div class="m-left">
+          <div style="margin-bottom:8px;"><span class="model-badge">${model}</span></div>
+          <div class="m-invoice">${shortId}</div>
+          <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:6px;">
+            ${new Date(p.created_at).toLocaleString()}
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div class="m-amount">$${parseFloat(p.amount||0).toFixed(2)}</div>
+          <span class="badge ${es}"><span class="badge-dot"></span>${es}</span>
+          ${isMarked ? '<span style="color:#00D632;font-size:10px;font-weight:bold;margin-top:4px;">✓ Marked</span>' : ''}
+        </div>
+      </div>
+    </div>`;
   }).join('');
 
   if (totalPages > 1) {
