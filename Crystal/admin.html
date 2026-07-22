@@ -231,11 +231,16 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <div id="tab-withdrawals" style="display:none;">
-      <div class="filter-bar" style="justify-content:space-between;">
+    <div class="filter-bar" style="justify-content:space-between;">
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
-          <input type="number" id="wdAmount" class="search-input" placeholder="Amount ($)" style="max-width:120px;" min="1">
-          <input type="text" id="wdNote" class="search-input" placeholder="Note (e.g. to CashApp)">
+          <input type="number" id="wdAmount" class="search-input" placeholder="Amount ($)" style="max-width:100px;" min="1">
+          <select id="wdMethod" class="filter-select" style="min-width:120px;">
+            <option value="Binance">Binance (USDT/BTC)</option>
+            <option value="bKash">bKash</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Bank">Bank Transfer</option>
+          </select>
+          <input type="text" id="wdNote" class="search-input" placeholder="Account No / Details">
           <button class="refresh-btn" onclick="submitWithdrawal()" style="background:rgba(0,214,50,0.15); border-color:rgba(0,214,50,0.4);">💳 Withdraw</button>
         </div>
         <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
@@ -268,87 +273,86 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 </div>
 
 <script>
-// Supabase Credentials
+// 🟢 ফ্রন্টএন্ডে কোনো পাসওয়ার্ড নেই!
 const SUPABASE_URL = 'https://ymdhewjlbofmeuhahkbw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGhld2psYm9mbWV1aGFoa2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTgyNjcsImV4cCI6MjEwMDIzNDI2N30.1wuZwSTmmYn48U23bAnah2h-wDm-2hC4Omv_jUNic98';
-
-const ADMIN_USER = 'Crystal';
-const ADMIN_PASS = 'Crystal@2026'; // 🟢 পাসওয়ার্ড আপডেট করা হয়েছে
+const ADMIN_USER = 'crystal';
 const PER_PAGE = 25;
+let allPayments = [], allWithdrawals = [], currentPayPage = 1;
 
-let allPayments = [];
-let allWithdrawals = [];
-let currentPayPage = 1;
+// 🟢 লগিন লজিক (ভুল পাসওয়ার্ড দিলে ডাটাবেস থেকে এরর আসবে)
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  
+  if (u === ADMIN_USER && p !== '') {
+    sessionStorage.setItem('adminAuth', 'true');
+    sessionStorage.setItem('typedPass', p); // 🟢 টাইপ করা পাসওয়ার্ড সেভ রাখলাম
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+    startCountdownTick();
+  } else {
+    showLoginError();
+  }
+}
 
-// 🟢 MARK SYSTEM LOGIC (DATABASE SYNCED) 🟢
+function showLoginError() {
+  const err = document.getElementById('loginError');
+  err.style.display = 'block';
+  err.style.animation = 'none';
+  setTimeout(() => err.style.animation = '', 10);
+  sessionStorage.removeItem('adminAuth');
+}
+
+// 🟢 RPC দিয়ে Mark করা
 async function toggleMark(invoiceId, currentStatus, btnElement) {
   const newStatus = !currentStatus;
   btnElement.disabled = true; 
   btnElement.textContent = '...';
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/payments?invoice_id=eq.${invoiceId}`, {
-      method: 'PATCH',
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/toggle_mark`, {
+      method: 'POST',
       headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
+        'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ is_marked: newStatus })
+      // 🟢 টাইপ করা পাসওয়ার্ড ডাটাবেসে পাঠানো হচ্ছে
+      body: JSON.stringify({ p_invoice_id: invoiceId, p_is_marked: newStatus, p_pass: sessionStorage.getItem('typedPass') })
     });
 
     if (res.ok) {
       const pIndex = allPayments.findIndex(x => x.invoice_id === invoiceId);
-      if (pIndex > -1) {
-        allPayments[pIndex].is_marked = newStatus;
-        renderPayments(); 
-      }
+      if (pIndex > -1) { allPayments[pIndex].is_marked = newStatus; renderPayments(); }
     } else {
-      alert("Failed to sync mark status! Ensure RLS is disabled for updates.");
+      alert("Unauthorized! Incorrect password or read-only error.");
+      if(res.status === 401 || res.status === 400) doLogout();
       btnElement.disabled = false;
     }
-  } catch(e) { 
-    console.error(e); 
-    btnElement.disabled = false;
-  }
+  } catch(e) { btnElement.disabled = false; }
 }
 
-function doLogin() {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  if (u === ADMIN_USER && p === ADMIN_PASS) {
-    sessionStorage.setItem('adminAuth', 'true');
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadData();
-    startCountdownTick();
-  } else {
-    const err = document.getElementById('loginError');
-    err.style.display = 'block';
-    err.style.animation = 'none';
-    setTimeout(() => err.style.animation = '', 10);
-  }
-}
+// 🟢 RPC দিয়ে উইথড্র রিকোয়েস্ট করা (নতুন মেথড সহ)
+async function submitWithdrawal() {
+  const amt = parseFloat(document.getElementById('wdAmount').value);
+  const method = document.getElementById('wdMethod').value;
+  const note = document.getElementById('wdNote').value || '';
+  if (!amt || amt <= 0) return alert('Enter a valid amount');
+  if (!note) return alert('Enter account details (Address/Number)');
 
-function doLogout() {
-  sessionStorage.removeItem('adminAuth');
-  location.reload();
-}
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/request_withdrawal`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_amount: amt, p_method: method, p_note: note, p_source: 'Crystal', p_pass: sessionStorage.getItem('typedPass') })
+    });
 
-if (sessionStorage.getItem('adminAuth') === 'true') {
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-}
-
-async function loadData() {
-  await Promise.all([fetchPayments(), fetchWithdrawals()]);
-  updateStats();
-  renderPayments();
-  renderWithdrawals();
-  const el = document.getElementById('lastUpdated');
-  el.textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  el.classList.add('show');
+    if(res.ok) {
+      document.getElementById('wdAmount').value = '';
+      document.getElementById('wdNote').value = '';
+      loadData(); 
+    } else { alert("Failed! Check password."); }
+  } catch(e) { console.error(e); }
 }
 
 // 🟢 শধু Crystal এর পেমেন্ট লোড করার লজিক
