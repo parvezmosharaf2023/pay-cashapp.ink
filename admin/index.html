@@ -85,6 +85,19 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .search-input:focus, .filter-select:focus { border-color:rgba(100,180,255,0.5); }
 .refresh-btn { background:rgba(100,180,255,0.09); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
 
+/* ══════ MODEL OVERVIEW SCROLL ══════ */
+.model-overview-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; margin-bottom:16px; }
+.model-overview-scroll::-webkit-scrollbar { height:6px; }
+.model-overview-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:4px; }
+.model-stat-box { background:#0a0a0a; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; min-width:160px; flex-shrink:0; position:relative; overflow:hidden;}
+.model-stat-box::after { content:''; position:absolute; top:0; right:0; width:40px; height:40px; background:radial-gradient(circle, rgba(100,180,255,0.1) 0%, transparent 70%); transform:translate(10px,-10px); border-radius:50%; }
+.m-title { font-size:11px; font-weight:800; color:#fff; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; }
+.m-stat { font-size:11px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:5px; display:flex; justify-content:space-between; gap:12px; }
+.c-pending { color:#ffc800; }
+.c-settled { color:#00D632; }
+.c-expired { color:#ff5050; }
+
+/* ══════ TABLE ══════ */
 .table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
 .table-scroll { overflow-x:auto; display:none; }
 @media (min-width:750px) { .table-scroll { display:block; } }
@@ -159,12 +172,20 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 
   <div class="content">
     <div class="stats-grid">
-      <!-- 1. Total Global Settled -->
+      <!-- 1. Total Global Settled with All-Time Saved -->
       <div class="stat-card blue">
-        <div class="stat-icon">💰</div>
-        <div class="stat-label">Total Global Settled</div>
-        <div class="stat-val" id="statSettled">$0.00</div>
-        <div class="stat-sub">Across all models</div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+               <div class="stat-label">Total Global Settled</div>
+               <div class="stat-val" id="statSettled">$0.00</div>
+               <div class="stat-sub">Current table data</div>
+            </div>
+            <div style="text-align:right;">
+               <div class="stat-label" style="color:rgba(255,255,255,0.6);">All-Time Saved</div>
+               <div class="stat-val" style="font-size:16px; color:#64b4ff; margin-bottom:4px;" id="statLifetime">$0.00</div>
+               <button class="btn-profit" style="padding:4px 10px; font-size:9px;" onclick="backupLifetime()">+ Backup</button>
+            </div>
+        </div>
       </div>
 
       <!-- 2. Master Profit -->
@@ -212,6 +233,12 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search Invoice or Model..." oninput="resetAndRenderPayments()">
         <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
       </div>
+
+      <!-- 🟢 NEW: Model Overview Section -->
+      <div class="model-overview-scroll" id="modelOverviewGrid">
+         <!-- Data injected by JS -->
+      </div>
+
       <div class="table-wrap">
         <div class="table-scroll">
           <table>
@@ -353,8 +380,9 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
 }
 
 async function loadData() {
-  await Promise.all([fetchPayments(), fetchWithdrawals()]);
+  await Promise.all([fetchPayments(), fetchWithdrawals(), fetchLifetimeTotal()]);
   updateStats();
+  renderModelOverview();
   renderPayments();
   renderWithdrawals();
   const el = document.getElementById('lastUpdated');
@@ -401,6 +429,48 @@ async function fetchWithdrawals() {
   } catch(e) { console.error(e); }
 }
 
+// 🟢 NEW: Fetch Lifetime Saved Total
+async function fetchLifetimeTotal() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_lifetime_total`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if(res.ok) {
+      const lifetime = await res.json();
+      document.getElementById('statLifetime').textContent = '$' + (parseFloat(lifetime) || 0).toFixed(2);
+    }
+  } catch(e) { console.error("Error fetching lifetime:", e); }
+}
+
+// 🟢 NEW: Backup Current Settled Amount to Database
+async function backupLifetime() {
+  const settled = allPayments.filter(p => p.status === 'settled' || p.status === 'completed' || p.status === 'paid');
+  const currentTotal = settled.reduce((s,p) => s + parseFloat(p.amount || 0), 0);
+  
+  if(currentTotal <= 0) return alert("You have $0.00 settled amount to backup right now!");
+  
+  if(!confirm(`Do you want to add the current $${currentTotal.toFixed(2)} to your 'All-Time Saved' record?\n\nTip: You should do this BEFORE deleting old data from the payments table to keep your history intact.`)) return;
+
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/save_lifetime_total`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_amount: currentTotal, p_pass: sessionStorage.getItem('masterPass') })
+    });
+    if(res.ok) {
+      alert("Successfully Added! Your All-Time history is updated. You can safely delete the old records from Supabase now.");
+      loadData();
+    } else {
+      alert("Database Error! Make sure you executed the Lifetime SQL script in Supabase.");
+    }
+  } catch(e) { console.error(e); }
+  btn.disabled = false; btn.textContent = '+ Backup';
+}
+
 function updateStats() {
   const settled = allPayments.filter(p => p.status === 'settled' || p.status === 'completed' || p.status === 'paid');
   const totalSettled = settled.reduce((s,p) => s + parseFloat(p.amount || 0), 0);
@@ -423,6 +493,35 @@ function updateStats() {
   document.getElementById('statProfit').textContent = '$' + totalProfitSaved.toFixed(2);
   document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
   document.getElementById('statPendingWD').textContent = pendingWdCount + ' requests';
+}
+
+// 🟢 NEW: Render Overview of Models
+function renderModelOverview() {
+  const stats = {};
+  allPayments.forEach(p => {
+    const m = extractModelName(p.source).toUpperCase();
+    if(!stats[m]) stats[m] = { pending: 0, settled: 0, expired: 0 };
+    let es = p.status;
+    if (p._uiExpired) es = 'expired';
+
+    if (es === 'pending' || es === 'new') stats[m].pending += parseFloat(p.amount||0);
+    else if (es === 'settled' || es === 'completed' || es === 'paid') stats[m].settled += parseFloat(p.amount||0);
+    else if (es === 'expired') stats[m].expired += parseFloat(p.amount||0);
+  });
+
+  const container = document.getElementById('modelOverviewGrid');
+  let html = '';
+  for(const [model, data] of Object.entries(stats)) {
+    html += `<div class="model-stat-box">
+      <div class="m-title">${model}</div>
+      <div class="m-stat"><span class="c-pending">Pending:</span> <span>$${data.pending.toFixed(2)}</span></div>
+      <div class="m-stat"><span class="c-settled">Settled:</span> <span>$${data.settled.toFixed(2)}</span></div>
+      <div class="m-stat"><span class="c-expired">Expired:</span> <span>$${data.expired.toFixed(2)}</span></div>
+    </div>`;
+  }
+  
+  if(html === '') html = '<div style="color:rgba(255,255,255,0.4); font-size:12px; padding:10px;">No models data available</div>';
+  container.innerHTML = html;
 }
 
 // 🟢 Calculator Logic
@@ -522,8 +621,15 @@ async function completeWithdrawal(id, btnElement) {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
     });
-    if (res.ok) loadData(); else alert("Unauthorized!");
-  } catch(e) { btnElement.disabled = false; }
+    if (res.ok) { loadData(); } else {
+      const errData = await res.json();
+      alert("Database Error: " + (errData.message || res.statusText));
+      btnElement.disabled = false; btnElement.textContent = 'Mark Paid';
+    }
+  } catch(e) { 
+      alert("Network Error!");
+      btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; 
+  }
 }
 
 function resetAndRenderPayments() { currentPayPage = 1; renderPayments(); }
@@ -649,7 +755,7 @@ function renderWithdrawals() {
     const isCompleted = w.status === 'completed';
     const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
     const isSys = w.source === 'Master Admin' && w.method === 'System';
-    if(isSys) return ''; // Hide internal system clear logs from UI to keep it clean
+    if(isSys) return ''; 
     
     const model = isProfit ? 'MY PROFIT' : extractModelName(w.source).toUpperCase();
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
