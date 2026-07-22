@@ -20,7 +20,6 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .field-input:focus { border-color:rgba(100,180,255,0.6); box-shadow:0 0 0 4px rgba(100,180,255,0.10); }
 .login-btn { width:100%; background:linear-gradient(135deg,#005cff,#00c3ff); color:#fff; border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; box-shadow:0 5px 24px rgba(0,92,255,0.35); transition:all 0.25s; letter-spacing:0.02em; }
 .login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,92,255,0.45); }
-.login-btn:active { transform:translateY(0); }
 .login-error { color:#ff4d4d; font-size:13px; text-align:center; margin-top:14px; display:none; font-weight:600; }
 
 /* ══════ DASHBOARD ══════ */
@@ -45,70 +44,86 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); transform:translate(20px,-20px); }
 .stat-card.blue { border-color:rgba(100,180,255,0.18); background:linear-gradient(135deg,#0d0d0d,#0a121a); }
 .stat-card.blue::before { background:radial-gradient(circle, rgba(100,180,255,0.08) 0%, transparent 70%); }
+.stat-card.profit-bg { border-color:rgba(0,214,50,0.25); background:linear-gradient(135deg,#0d0d0d,#0a1a0f); }
+.stat-card.profit-bg::before { background:radial-gradient(circle, rgba(0,214,50,0.1) 0%, transparent 70%); }
+
 .stat-icon { font-size:20px; margin-bottom:10px; }
 .stat-label { font-size:10px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:6px; }
 .stat-val { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1; }
 .stat-card.blue .stat-val { color:#64b4ff; }
 .stat-sub { font-size:11px; color:rgba(255,255,255,0.28); margin-top:5px; font-weight:500; }
 
-/* ══════ TABS ══════ */
+.btn-profit { background:rgba(0,214,50,0.15); color:#00D632; border:1px solid rgba(0,214,50,0.4); padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; transition:all 0.2s; box-shadow: 0 4px 10px rgba(0,214,50,0.1); }
+.btn-profit:hover { background:rgba(0,214,50,0.25); transform:translateY(-2px); }
+
+/* ══════ MODAL (CALCULATOR) ══════ */
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
+.modal-content { background:#0d0d0d; border:1px solid rgba(100,180,255,0.2); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.modal-title { font-size:18px; font-weight:800; color:#fff; }
+.modal-close { background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:24px; cursor:pointer; }
+.calc-row { display:flex; gap:12px; margin-bottom:12px; }
+.calc-col { flex:1; }
+.calc-input { width:100%; background:#161616; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; font-size:16px; color:#fff; outline:none; font-family:'DM Sans'; font-weight:700;}
+.calc-input:focus { border-color:#64b4ff; }
+.calc-input[readonly] { color:#00D632; background:rgba(0,214,50,0.05); border-color:rgba(0,214,50,0.2); }
+.result-box { background:#161616; border-radius:12px; padding:16px; margin-top:20px; border:1px dashed rgba(255,255,255,0.05); }
+.res-line { display:flex; justify-content:space-between; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:8px; font-weight:500; }
+.res-line.highlight { font-size:16px; font-weight:800; color:#00D632; margin-top:12px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.1); }
+.save-profit-btn { width:100%; background:linear-gradient(135deg,#00D632,#00903c); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; margin-top:20px; font-family:'DM Sans'; transition:all 0.2s; }
+.save-profit-btn:hover { opacity:0.9; transform:translateY(-2px); }
+
+/* ══════ TABS & TABLE ══════ */
 .tabs { display:flex; gap:8px; margin-bottom:18px; }
 .tab-btn { background:#111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.45); padding:9px 18px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.22s; flex:1; text-align:center; }
 @media (min-width:480px) { .tab-btn { flex:none; } }
 .tab-btn.active { background:rgba(100,180,255,0.12); border-color:rgba(100,180,255,0.3); color:#64b4ff; }
 
-/* ══════ FILTER BAR ══════ */
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
-.filter-select { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; font-weight:500; }
-.filter-select option { background:#111; }
-.search-input { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; flex:1; min-width:160px; font-weight:500; }
-.search-input::placeholder { color:rgba(255,255,255,0.22); }
-.search-input:focus, .filter-select:focus { border-color:rgba(100,180,255,0.5); box-shadow:0 0 0 3px rgba(100,180,255,0.08); }
-.refresh-btn { background:rgba(100,180,255,0.09); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; white-space:nowrap; }
-.refresh-btn:hover { background:rgba(100,180,255,0.18); }
+.filter-select, .search-input { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans'; font-weight:500; outline:none;}
+.search-input { flex:1; min-width:160px; }
+.search-input:focus, .filter-select:focus { border-color:rgba(100,180,255,0.5); }
+.refresh-btn { background:rgba(100,180,255,0.09); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
 
-/* ══════ PAGINATION ══════ */
-.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
-.page-btn { background: #111; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); width: 32px; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.page-btn:hover:not(:disabled) { background: #222; border-color: rgba(100,180,255,0.3); }
-.page-btn.active { background: rgba(100,180,255,0.2); border-color: rgba(100,180,255,0.5); color: #64b4ff; }
-.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-/* ══════ TABLE ══════ */
 .table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
 .table-scroll { overflow-x:auto; display:none; }
-@media (min-width:700px) { .table-scroll { display:block; } }
+@media (min-width:750px) { .table-scroll { display:block; } }
 table { width:100%; border-collapse:collapse; }
 thead th { background:#111; padding:12px 16px; text-align:left; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.06); }
 tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
-tbody tr:last-child td { border-bottom:none; }
-tbody tr:hover { background:rgba(255,255,255,0.02); }
 
-/* ══════ MOBILE CARDS ══════ */
 .mobile-list { display:block; }
-@media (min-width:700px) { .mobile-list { display:none; } }
-.m-card, .m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s; }
-.m-card:last-child, .m-card-w:last-child { border-bottom:none; }
+@media (min-width:750px) { .mobile-list { display:none; } }
+.m-card, .m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); }
 .m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .m-left { flex:1; min-width:0; }
-.m-invoice { font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
-.m-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.m-invoice { font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.m-amount { font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
 .m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
-.model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); display: inline-block;}
+.m-meta { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.05); }
 
 /* ══════ BADGES & BUTTONS ══════ */
+.model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); display: inline-block; letter-spacing: 0.5px;}
+.model-badge-profit { background: rgba(0,214,50,0.15); color: #00D632; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(0,214,50,0.3); display: inline-block; letter-spacing: 0.5px;}
+
 .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
 .badge.settled, .badge.completed, .badge.paid { background:rgba(0,214,50,0.12); border:1px solid rgba(0,214,50,0.28); color:#00D632; }
 .badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
 .badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
 .badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
 
-.btn-mark { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-.btn-mark:hover:not(:disabled) { background: #00D632; color: #000; border-color: #00D632; }
-.btn-mark.marked-active { background: #00D632; color: #000; border-color: #00D632; opacity: 0.7; cursor: default; }
-.is-marked { background: rgba(0, 214, 50, 0.05) !important; border-left: 3px solid #00D632 !important; }
+.m-pill { font-size:11px; color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+.m-expire { font-size:11px; color:#ffc800; font-weight:700; background:rgba(255,200,0,0.1); padding:4px 10px; border-radius:999px; }
+.m-expired-pill { font-size:11px; color:#ff5050; font-weight:700; background:rgba(255,80,80,0.1); padding:4px 10px; border-radius:999px; }
 
+.btn-mark { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+.btn-mark:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+.btn-mark.marked-active { background: #00D632; color: #000; border-color: #00D632; cursor: default; }
+.is-marked { background: rgba(0, 214, 50, 0.05) !important; border-left: 3px solid #00D632 !important; }
 .table-footer { padding:13px 16px; border-top:1px solid rgba(255,255,255,0.06); font-size:12px; color:rgba(255,255,255,0.28); font-weight:500; }
+.pagination { display: flex; justify-content: center; gap: 8px; padding: 16px; }
+.page-btn { background: #111; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); width: 32px; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.page-btn.active { background: rgba(100,180,255,0.2); border-color: rgba(100,180,255,0.5); color: #64b4ff; }
 </style>
 </head>
 <body>
@@ -144,35 +159,45 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 
   <div class="content">
     <div class="stats-grid">
+      <!-- 1. Total Global Settled -->
       <div class="stat-card blue">
         <div class="stat-icon">💰</div>
         <div class="stat-label">Total Global Settled</div>
         <div class="stat-val" id="statSettled">$0.00</div>
         <div class="stat-sub">Across all models</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">🏦</div>
-        <div class="stat-label">Total Paid Withdrawals</div>
-        <div class="stat-val" id="statPaidWD" style="color:#00D632;">$0.00</div>
-        <div class="stat-sub">Money successfully sent</div>
+
+      <!-- 2. Master Profit -->
+      <div class="stat-card profit-bg">
+        <div class="stat-label">Master Profit</div>
+        <div class="stat-val" id="statProfit" style="color:#00D632;">$0.00</div>
+        <div class="stat-sub">Your totally saved earnings</div>
       </div>
+
+      <!-- 3. Available Balance -->
+      <div class="stat-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+               <div class="stat-label">Available Balance</div>
+               <div class="stat-val" id="statAvailable" style="color:#64b4ff;">$0.00</div>
+               <div class="stat-sub">Ready to clear</div>
+            </div>
+            <button class="btn-profit" onclick="openCalcModal()">+ Calc & Save</button>
+        </div>
+      </div>
+
+      <!-- 4. Pending Models WD -->
       <div class="stat-card">
         <div class="stat-icon">⏳</div>
-        <div class="stat-label">Pending Withdrawals</div>
+        <div class="stat-label">Pending Models WD</div>
         <div class="stat-val" id="statPendingWD" style="color:#ffc800;">0</div>
         <div class="stat-sub">Needs your action</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-label">Total Payments</div>
-        <div class="stat-val" id="statTotal">0</div>
-        <div class="stat-sub">Hits on database</div>
       </div>
     </div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('payments', this)">💳 All Payments</button>
-      <button class="tab-btn" onclick="switchTab('withdrawals', this)">💸 Manage Withdrawals</button>
+      <button class="tab-btn" onclick="switchTab('withdrawals', this)">💸 Manage Withdrawals & Profits</button>
     </div>
 
     <!-- Payments Tab -->
@@ -187,30 +212,23 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search Invoice or Model..." oninput="resetAndRenderPayments()">
         <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
       </div>
-      
       <div class="table-wrap">
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th>Model (Source)</th>
-                <th>Invoice ID</th>
+                <th>Model</th>
+                <th>Invoice / Details</th>
                 <th>Amount</th>
-                <th>Status</th>
-                <th>Marked By Admin</th>
-                <th>Date</th>
+                <th>Status / Location</th>
+                <th>Expires</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody id="paymentsBody">
-              <tr><td colspan="6" class="m-empty">Loading...</td></tr>
-            </tbody>
+            <tbody id="paymentsBody"><tr><td colspan="6" class="m-empty">Loading...</td></tr></tbody>
           </table>
         </div>
-        
-        <div class="mobile-list" id="mobilePaymentsList">
-          <div class="m-empty">Loading...</div>
-        </div>
-
+        <div class="mobile-list" id="mobilePaymentsList"><div class="m-empty">Loading...</div></div>
         <div class="pagination" id="payPagination"></div>
         <div class="table-footer" id="paymentsFooter"></div>
       </div>
@@ -218,39 +236,68 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 
     <!-- Withdrawals Tab -->
     <div id="tab-withdrawals" style="display:none;">
-      <div class="filter-bar">
-         <button class="refresh-btn" onclick="loadData()">⟳ Refresh List</button>
-      </div>
+      <div class="filter-bar"><button class="refresh-btn" onclick="loadData()">⟳ Refresh List</button></div>
       <div class="table-wrap">
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th>Model (Source)</th>
+                <th>Model / Admin</th>
                 <th>Amount</th>
                 <th>Note / Address</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Date & Time</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="withdrawalsBody">
-              <tr><td colspan="6" class="m-empty">Loading...</td></tr>
-            </tbody>
+            <tbody id="withdrawalsBody"><tr><td colspan="6" class="m-empty">Loading...</td></tr></tbody>
           </table>
         </div>
-        <div class="mobile-list" id="mobileWithdrawalsList">
-          <div class="m-empty">Loading...</div>
-        </div>
+        <div class="mobile-list" id="mobileWithdrawalsList"><div class="m-empty">Loading...</div></div>
         <div class="table-footer" id="withdrawalsFooter"></div>
       </div>
     </div>
+  </div>
+</div>
 
+<!-- 🟢 Profit Calculator Modal -->
+<div class="modal-overlay" id="calcModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Profit Calculator</div>
+      <button class="modal-close" onclick="closeCalcModal()">×</button>
+    </div>
+    
+    <div class="field-label">1. System Available Balance (Auto)</div>
+    <input type="number" id="calcAvail" class="calc-input" style="margin-bottom:12px;" readonly>
+    
+    <div class="field-label">2. Amount Received in Binance (USD)</div>
+    <input type="number" id="calcRecv" class="calc-input" placeholder="e.g. 1528.93" style="margin-bottom:16px;" oninput="doMath()">
+    
+    <div class="calc-row">
+      <div class="calc-col">
+        <div class="field-label">Sell Rate (BDT)</div>
+        <input type="number" id="calcSell" class="calc-input" placeholder="126.85" oninput="doMath()">
+      </div>
+      <div class="calc-col">
+        <div class="field-label">Buy/Payout Rate</div>
+        <input type="number" id="calcBuy" class="calc-input" placeholder="128.70" oninput="doMath()">
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="res-line"><span>Crypto Gain (Extra):</span> <span id="resGain">$0.00</span></div>
+      <div class="res-line"><span>Admin 50% Share:</span> <span id="resAdminShare">+$0.00</span></div>
+      <div class="res-line"><span>Total Converted BDT:</span> <span id="resBDT">৳0.00</span></div>
+      <div class="res-line" style="color:#ff5050;"><span>Models Payout Cost:</span> <span id="resCost">-$0.00</span></div>
+      <div class="res-line highlight"><span>Net Profit:</span> <span id="resFinalProfit">$0.00</span></div>
+    </div>
+
+    <button class="save-profit-btn" id="saveProfitBtn" onclick="saveCalculatedProfit()">Confirm & Save Profit</button>
   </div>
 </div>
 
 <script>
-// 🟢 সুপাবেস ক্রেডেনশিয়ালস 
 const SUPABASE_URL = 'https://ymdhewjlbofmeuhahkbw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGhld2psYm9mbWV1aGFoa2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTgyNjcsImV4cCI6MjEwMDIzNDI2N30.1wuZwSTmmYn48U23bAnah2h-wDm-2hC4Omv_jUNic98';
 
@@ -260,31 +307,34 @@ const PER_PAGE = 30;
 let allPayments = [];
 let allWithdrawals = [];
 let currentPayPage = 1;
+let globalAvailable = 0;
+let finalCalculatedProfit = 0;
+
+function formatDateTime(dateStr) {
+  const d = new Date(dateStr);
+  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return `${date}, ${time}`;
+}
 
 function extractModelName(urlStr) {
   if(!urlStr) return 'Unknown';
-  if(urlStr.includes('/')) {
-    const parts = urlStr.split('/').filter(p => p.length > 0);
-    return parts[parts.length - 1];
-  }
+  if(urlStr.includes('/')) return urlStr.split('/').filter(p => p.length > 0).pop();
   return urlStr;
 }
 
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
-  // শুধুমাত্র ইউজারনেম লোকালি চেক করে, পাসওয়ার্ড সরাসরি সার্ভারে চলে যাবে ভেরিফিকেশনের জন্য
   if (u === ADMIN_USER && p !== '') {
     sessionStorage.setItem('masterAuth', 'true');
     sessionStorage.setItem('masterPass', p); 
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadData();
+    startCountdownTick();
   } else {
-    const err = document.getElementById('loginError');
-    err.style.display = 'block';
-    err.style.animation = 'none';
-    setTimeout(() => err.style.animation = '', 10);
+    document.getElementById('loginError').style.display = 'block';
   }
 }
 
@@ -298,6 +348,7 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   loadData();
+  startCountdownTick();
   setInterval(loadData, 30000); 
 }
 
@@ -311,107 +362,168 @@ async function loadData() {
   el.classList.add('show');
 }
 
-// 🟢 Fetch ALL Payments (কোনো ফিল্টার ছাড়া সব মডেলের ডেটা আসবে)
 async function fetchPayments() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/payments?select=*&order=created_at.desc`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-    });
-    let data = await res.json();
-    if (!data.error) {
-        const now = new Date();
-        allPayments = data.map(p => {
-          p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
-          if (p.status === 'new' || p.status === 'pending') {
-            const diffMin = (now - new Date(p.created_at)) / 60000;
-            if (diffMin > p._expireMins) p._uiExpired = true;
-          }
-          return p;
-        });
+    let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
+    while(keepFetching) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/payments?select=*&order=created_at.desc&limit=${limit}&offset=${offset}`, {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+      });
+      let data = await res.json();
+      if (data.error || data.length === 0) break;
+      allFetchedData = allFetchedData.concat(data);
+      if (data.length < limit) keepFetching = false; else offset += limit;
     }
+    const now = new Date();
+    allPayments = allFetchedData.map(p => {
+      p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
+      if (p.status === 'new' || p.status === 'pending') {
+        if ((now - new Date(p.created_at))/60000 > p._expireMins) p._uiExpired = true;
+      }
+      return p;
+    });
   } catch(e) { console.error(e); }
 }
 
-// 🟢 Fetch ALL Withdrawals (সব উইথড্রয়াল রিকোয়েস্ট)
 async function fetchWithdrawals() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-    });
-    let data = await res.json();
-    if(!data.error) allWithdrawals = data;
+    let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
+    while(keepFetching) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=${limit}&offset=${offset}`, {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+      });
+      let data = await res.json();
+      if (data.error || data.length === 0) break;
+      allFetchedData = allFetchedData.concat(data);
+      if (data.length < limit) keepFetching = false; else offset += limit;
+    }
+    allWithdrawals = allFetchedData;
   } catch(e) { console.error(e); }
-}
-
-// 🟢 Master Admin Action: RPC দিয়ে পেমেন্ট কমপ্লিট করা (Secure)
-async function completeWithdrawal(id, btnElement) {
-  if(!confirm("Are you sure you have paid this amount? This will mark it as Completed.")) return;
-  
-  btnElement.disabled = true;
-  btnElement.textContent = 'Processing...';
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_withdrawal`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json'
-      },
-      // 🟢 RPC তে ডাটা এবং মাস্টার পাসওয়ার্ড পাঠানো হচ্ছে
-      body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
-    });
-
-    if (res.ok) {
-      loadData(); 
-    } else {
-      alert("Unauthorized! Incorrect Master Password.");
-      btnElement.disabled = false;
-      btnElement.textContent = 'Mark Paid';
-      if(res.status === 401 || res.status === 400) doLogout();
-    }
-  } catch(e) { 
-    console.error(e); 
-    btnElement.disabled = false;
-  }
-}
-
-// 🟢 Master Admin Action: RPC দিয়ে Mark করা
-async function toggleMark(invoiceId, currentStatus, btnElement) {
-  const newStatus = !currentStatus;
-  btnElement.disabled = true; 
-  btnElement.textContent = '...';
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/toggle_mark`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ p_invoice_id: invoiceId, p_is_marked: newStatus, p_pass: sessionStorage.getItem('masterPass') })
-    });
-
-    if (res.ok) {
-      loadData();
-    } else {
-      alert("Unauthorized! Incorrect Master Password.");
-      if(res.status === 401 || res.status === 400) doLogout();
-      btnElement.disabled = false;
-    }
-  } catch(e) { btnElement.disabled = false; }
 }
 
 function updateStats() {
   const settled = allPayments.filter(p => p.status === 'settled' || p.status === 'completed' || p.status === 'paid');
   const totalSettled = settled.reduce((s,p) => s + parseFloat(p.amount || 0), 0);
   
-  const paidWd = allWithdrawals.filter(w => w.status === 'completed');
-  const totalPaidWd = paidWd.reduce((s,w) => s + parseFloat(w.amount || 0), 0);
+  const modelWd = allWithdrawals.filter(w => w.status === 'completed' && w.source !== 'Master Admin');
+  const totalModelWd = modelWd.reduce((s,w) => s + parseFloat(w.amount || 0), 0);
   
-  const pendingWdCount = allWithdrawals.filter(w => w.status !== 'completed').length;
+  const profitWd = allWithdrawals.filter(w => w.source === 'Master Admin' && w.method === 'Profit');
+  const totalProfitSaved = profitWd.reduce((s,w) => s + parseFloat(w.amount || 0), 0);
+
+  const sysWd = allWithdrawals.filter(w => w.source === 'Master Admin' && w.method === 'System');
+  const totalSysClear = sysWd.reduce((s,w) => s + parseFloat(w.amount || 0), 0);
+  
+  const pendingWdCount = allWithdrawals.filter(w => w.status !== 'completed' && w.source !== 'Master Admin').length;
+  
+  // Math: Available = Settled - Paid Models - Saved Profit - System Clear
+  globalAvailable = totalSettled - totalModelWd - totalProfitSaved - totalSysClear;
 
   document.getElementById('statSettled').textContent = '$' + totalSettled.toFixed(2);
-  document.getElementById('statPaidWD').textContent = '$' + totalPaidWd.toFixed(2);
+  document.getElementById('statProfit').textContent = '$' + totalProfitSaved.toFixed(2);
+  document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
   document.getElementById('statPendingWD').textContent = pendingWdCount + ' requests';
-  document.getElementById('statTotal').textContent = allPayments.length;
+}
+
+// 🟢 Calculator Logic
+function openCalcModal() {
+  if (globalAvailable <= 0) return alert("Available Balance is $0.00. No profit to save.");
+  document.getElementById('calcAvail').value = globalAvailable.toFixed(2);
+  document.getElementById('calcRecv').value = '';
+  document.getElementById('calcSell').value = '';
+  document.getElementById('calcBuy').value = '';
+  doMath();
+  document.getElementById('calcModal').style.display = 'flex';
+}
+
+function closeCalcModal() {
+  document.getElementById('calcModal').style.display = 'none';
+}
+
+function doMath() {
+  const A = parseFloat(document.getElementById('calcAvail').value) || 0;
+  const R = parseFloat(document.getElementById('calcRecv').value) || 0;
+  const S = parseFloat(document.getElementById('calcSell').value) || 0;
+  const B = parseFloat(document.getElementById('calcBuy').value) || 0;
+
+  if (R === 0 || S === 0 || B === 0) {
+    document.getElementById('resGain').textContent = "$0.00";
+    document.getElementById('resAdminShare').textContent = "+$0.00";
+    document.getElementById('resBDT').textContent = "৳0.00";
+    document.getElementById('resCost').textContent = "-$0.00";
+    document.getElementById('resFinalProfit').textContent = "$0.00";
+    finalCalculatedProfit = 0;
+    return;
+  }
+
+  const diff = R - A;
+  const half = diff / 2;
+  const totalUsd = A + half;
+  const totalBdt = totalUsd * S;
+  const costUsd = totalBdt / B;
+  finalCalculatedProfit = R - costUsd;
+
+  document.getElementById('resGain').textContent = "$" + diff.toFixed(2);
+  document.getElementById('resAdminShare').textContent = "+$" + half.toFixed(3);
+  document.getElementById('resBDT').textContent = "৳" + totalBdt.toFixed(2);
+  document.getElementById('resCost').textContent = "-$" + costUsd.toFixed(2);
+  document.getElementById('resFinalProfit').textContent = "$" + finalCalculatedProfit.toFixed(2);
+}
+
+// 🟢 API Call to Save Profit & Clear System
+async function saveCalculatedProfit() {
+  if (finalCalculatedProfit <= 0) return alert("Please calculate a valid profit first.");
+  
+  const profitToSave = finalCalculatedProfit;
+  const systemClearAmount = globalAvailable - profitToSave;
+
+  const btn = document.getElementById('saveProfitBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/admin_save_profit`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        p_profit: profitToSave, 
+        p_clear: systemClearAmount, 
+        p_pass: sessionStorage.getItem('masterPass') 
+      })
+    });
+    if(res.ok) {
+      closeCalcModal();
+      loadData();
+      alert("Success! Profit saved and Available Balance cleared.");
+    } else { alert("Failed! Check Master Password or SQL function."); }
+  } catch(e) { console.error(e); }
+  
+  btn.disabled = false; btn.textContent = 'Confirm & Save Profit';
+}
+
+async function toggleMark(invoiceId, currentStatus, btnElement) {
+  const newStatus = !currentStatus;
+  btnElement.disabled = true; btnElement.textContent = '...';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/toggle_mark`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_invoice_id: invoiceId, p_is_marked: newStatus, p_pass: sessionStorage.getItem('masterPass') })
+    });
+    if (res.ok) loadData(); else alert("Unauthorized!");
+  } catch(e) { btnElement.disabled = false; }
+}
+
+async function completeWithdrawal(id, btnElement) {
+  if(!confirm("Mark this as Completed?")) return;
+  btnElement.disabled = true; btnElement.textContent = 'Processing...';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_withdrawal`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
+    });
+    if (res.ok) loadData(); else alert("Unauthorized!");
+  } catch(e) { btnElement.disabled = false; }
 }
 
 function resetAndRenderPayments() { currentPayPage = 1; renderPayments(); }
@@ -420,15 +532,11 @@ function changePage(page) { currentPayPage = page; renderPayments(); }
 function renderPayments() {
   const statusFilter = document.getElementById('filterStatus').value;
   const search = document.getElementById('searchInput').value.toLowerCase();
-
   const filtered = allPayments.filter(p => {
-    let es = p.status;
-    if (p._uiExpired) es = 'expired';
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const model = extractModelName(p.source).toLowerCase();
-    
     if (statusFilter === 'pending' && (es !== 'pending' && es !== 'new')) return false;
     else if (statusFilter && statusFilter !== 'pending' && es !== statusFilter) return false;
-
     if (search && !(p.invoice_id||'').toLowerCase().includes(search) && !model.includes(search)) return false;
     return true;
   });
@@ -440,9 +548,7 @@ function renderPayments() {
   if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="6" class="m-empty">No payments found</td></tr>';
     mList.innerHTML = '<div class="m-empty">No payments found</div>';
-    pagUI.innerHTML = '';
-    document.getElementById('paymentsFooter').textContent = '';
-    return;
+    pagUI.innerHTML = ''; return;
   }
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
@@ -450,52 +556,70 @@ function renderPayments() {
   const start = (currentPayPage - 1) * PER_PAGE;
   const paginated = filtered.slice(start, start + PER_PAGE);
 
-  // 🟢 Desktop Rendering
-  tbody.innerHTML = paginated.map((p) => {
-    let es = p.status;
-    if (p._uiExpired) es = 'expired';
+  tbody.innerHTML = paginated.map(p => {
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const shortId = (p.invoice_id||'').substring(0,18) + '...';
     const isMarked = p.is_marked === true;
-    const model = extractModelName(p.source);
+    const model = extractModelName(p.source).toUpperCase();
+    const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
+    const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
+    const locStr = p.city ? `📍 ${p.city}${p.country ? ', '+p.country : ''}` : '📍 Unknown';
+    let expirePart = '-';
+    if (es === 'expired') expirePart = '<span class="m-expired-pill">Expired</span>';
+    else if ((p.status === 'new' || p.status === 'pending') && !p._uiExpired) {
+      const expireAt = new Date(new Date(p.created_at).getTime() + p._expireMins * 60000);
+      expirePart = `<span class="m-expire" data-expire="${expireAt.toISOString()}">...</span>`;
+    }
     
     return `<tr class="${isMarked ? 'is-marked' : ''}">
       <td><span class="model-badge">${model}</span></td>
-      <td><div style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.55);">${shortId}</div></td>
-      <td style="font-weight:800;color:#fff;font-size:15px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
-      <td><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></td>
       <td>
-        <button class="btn-mark ${isMarked ? 'marked-active' : ''}" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)" style="margin-left:0;">
-          ${isMarked ? '✓ Marked' : 'Mark'}
-        </button>
+         <div class="m-invoice" style="color:rgba(255,255,255,0.7);">${shortId}</div>
+         <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+            <span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${methodStr}</span>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">${formatDateTime(p.created_at)}</div>
+         </div>
       </td>
-      <td style="color:rgba(255,255,255,0.35);font-size:12px;">${new Date(p.created_at).toLocaleDateString()}</td>
+      <td style="font-weight:800;color:#fff;font-size:16px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
+      <td><span class="badge ${es}" style="margin-bottom:4px;"><span class="badge-dot"></span>${es}</span><br><div class="m-pill">${locStr}</div></td>
+      <td>${expirePart}</td>
+      <td><button class="btn-mark ${isMarked ? 'marked-active' : ''}" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)">${isMarked ? '✓ Marked' : 'Mark'}</button></td>
     </tr>`;
   }).join('');
 
-  // 🟢 Mobile Rendering 
-  mList.innerHTML = paginated.map((p) => {
-    let es = p.status;
-    if (p._uiExpired) es = 'expired';
+  mList.innerHTML = paginated.map(p => {
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const shortId = (p.invoice_id||'').substring(0,22) + '...';
     const isMarked = p.is_marked === true;
-    const model = extractModelName(p.source);
-    
+    const model = extractModelName(p.source).toUpperCase();
+    const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
+    const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
+    const locStr = p.city ? `📍 ${p.city}${p.country ? ', '+p.country : ''}` : '📍 Unknown';
+    let expirePart = '';
+    if (es === 'expired') expirePart = '<span class="m-expired-pill">Expired</span>';
+    else if ((p.status === 'new' || p.status === 'pending') && !p._uiExpired) {
+      const expireAt = new Date(new Date(p.created_at).getTime() + p._expireMins * 60000);
+      expirePart = `<span class="m-expire" data-expire="${expireAt.toISOString()}">...</span>`;
+    }
+
     return `<div class="m-card ${isMarked ? 'is-marked' : ''}">
       <div class="m-row">
         <div class="m-left">
-          <div style="margin-bottom:8px;"><span class="model-badge">${model}</span></div>
-          <div class="m-invoice">${shortId}</div>
-          <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:6px;">
-            ${new Date(p.created_at).toLocaleString()}
-          </div>
+           <div style="margin-bottom:8px;"><span class="model-badge">${model}</span></div>
+           <div class="m-invoice" style="color:rgba(255,255,255,0.6);">${shortId}</div>
+           <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <span style="font-size:9px;font-weight:800;color:${methodColor};background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:4px;">${methodStr}</span>
+              <div style="color:rgba(255,255,255,0.5);font-size:11px;">${formatDateTime(p.created_at)}</div>
+           </div>
         </div>
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
           <div class="m-amount">$${parseFloat(p.amount||0).toFixed(2)}</div>
           <span class="badge ${es}"><span class="badge-dot"></span>${es}</span>
-          <button class="btn-mark ${isMarked ? 'marked-active' : ''}" style="margin-top:4px;" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)">
-            ${isMarked ? '✓ Marked' : 'Mark'}
-          </button>
         </div>
+      </div>
+      <div class="m-meta">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span class="m-pill">${locStr}</span>${expirePart}</div>
+        <button class="btn-mark ${isMarked ? 'marked-active' : ''}" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)">${isMarked ? '✓ Marked' : 'Mark'}</button>
       </div>
     </div>`;
   }).join('');
@@ -507,84 +631,90 @@ function renderPayments() {
     }
     pButtons += `<button class="page-btn" onclick="changePage(${currentPayPage + 1})" ${currentPayPage === totalPages ? 'disabled' : ''}>›</button>`;
     pagUI.innerHTML = pButtons;
-  } else { 
-    pagUI.innerHTML = ''; 
-  }
+  } else { pagUI.innerHTML = ''; }
   
   document.getElementById('paymentsFooter').textContent = `Total: ${filtered.length} entries`;
 }
 
-// 🟢 উইথড্রয়াল লিস্টে মেথড (bKash/Binance) এবং স্ট্যাটাস শো করার লজিক
 function renderWithdrawals() {
   const tbody = document.getElementById('withdrawalsBody');
   const mList = document.getElementById('mobileWithdrawalsList');
 
   if (!allWithdrawals.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="m-empty">No withdrawal requests</td></tr>';
-    mList.innerHTML = '<div class="m-empty">No withdrawal requests</div>';
-    document.getElementById('withdrawalsFooter').textContent = '';
-    return;
+    tbody.innerHTML = '<tr><td colspan="6" class="m-empty">No requests</td></tr>';
+    mList.innerHTML = '<div class="m-empty">No requests</div>'; return;
   }
 
-  // 🟢 Desktop View
   tbody.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
-    const model = extractModelName(w.source);
-    const methodStyle = w.method === 'Binance' ? '#f3ba2f' : (w.method === 'bKash' ? '#e2136e' : (w.method === 'Nagad' ? '#f76a20' : '#00D632'));
+    const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
+    const isSys = w.source === 'Master Admin' && w.method === 'System';
+    if(isSys) return ''; // Hide internal system clear logs from UI to keep it clean
+    
+    const model = isProfit ? 'MY PROFIT' : extractModelName(w.source).toUpperCase();
+    const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
+    let methodStyle = '#00D632'; 
+    if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
     return `<tr>
-      <td><span class="model-badge">${model}</span></td>
-      <td style="font-weight:800;color:#ff4d4d;font-size:15px;">$${parseFloat(w.amount||0).toFixed(2)}</td>
+      <td><span class="${badgeClass}">${model}</span></td>
+      <td style="font-weight:800;color:${isProfit ? '#00D632' : '#ff4d4d'};font-size:15px;">${isProfit ? '+' : '-'}$${parseFloat(w.amount||0).toFixed(2)}</td>
       <td>
         <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method || 'Bank'}</span>
         <span style="color:rgba(255,255,255,0.7); font-family:monospace; margin-left:6px;">${w.note || '-'}</span>
       </td>
-      <td><span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Completed' : 'Pending'}</span></td>
-      <td style="color:rgba(255,255,255,0.35);font-size:12px;">${new Date(w.created_at).toLocaleDateString()}</td>
-      <td>
-        ${isCompleted 
-          ? `<button class="btn-mark marked-active" disabled>✓ Paid</button>` 
-          : `<button class="btn-mark" onclick="completeWithdrawal('${w.id}', this)">Mark Paid</button>`
-        }
-      </td>
+      <td><span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? (isProfit ? 'SAVED' : 'PAID') : 'Pending'}</span></td>
+      <td style="color:rgba(255,255,255,0.4);font-size:11px;">${formatDateTime(w.created_at)}</td>
+      <td>${isCompleted ? `<button class="btn-mark marked-active" disabled>✓ ${isProfit ? 'SAVED' : 'PAID'}</button>` : `<button class="btn-mark" onclick="completeWithdrawal('${w.id}', this)">Mark Paid</button>`}</td>
     </tr>`;
   }).join('');
 
-  // 🟢 Mobile View
   mList.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
-    const model = extractModelName(w.source);
-    const methodStyle = w.method === 'Binance' ? '#f3ba2f' : (w.method === 'bKash' ? '#e2136e' : (w.method === 'Nagad' ? '#f76a20' : '#00D632'));
+    const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
+    const isSys = w.source === 'Master Admin' && w.method === 'System';
+    if(isSys) return '';
+    
+    const model = isProfit ? 'MY PROFIT' : extractModelName(w.source).toUpperCase();
+    const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
+    let methodStyle = '#00D632';
+    if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
     return `<div class="m-card-w">
       <div class="m-row">
         <div class="m-left">
-          <div style="margin-bottom:8px;"><span class="model-badge">${model}</span></div>
-          <div style="font-size:20px;font-weight:800;color:#ff4d4d;">$${parseFloat(w.amount||0).toFixed(2)}</div>
+          <div style="margin-bottom:8px;"><span class="${badgeClass}">${model}</span></div>
+          <div style="font-size:22px;font-weight:800;color:${isProfit ? '#00D632' : '#ff4d4d'};">${isProfit ? '+' : '-'}$${parseFloat(w.amount||0).toFixed(2)}</div>
           <div style="margin-top:6px;">
             <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method || 'Bank'}</span>
-            <span style="color:rgba(255,255,255,0.6);font-size:13px;margin-left:6px;">${w.note || 'No note'}</span>
+            <span style="color:rgba(255,255,255,0.6);font-size:12px;margin-left:6px;">${w.note || 'No note'}</span>
           </div>
+          <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;">${formatDateTime(w.created_at)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;">
-          <span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Paid' : 'Pending'}</span>
-          ${isCompleted 
-            ? `` 
-            : `<button class="btn-mark" style="padding:8px 16px;" onclick="completeWithdrawal('${w.id}', this)">Mark Paid</button>`
-          }
+          <span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? (isProfit ? 'SAVED' : 'PAID') : 'Pending'}</span>
+          ${isCompleted ? `` : `<button class="btn-mark" style="padding:8px 16px;" onclick="completeWithdrawal('${w.id}', this)">Mark Paid</button>`}
         </div>
       </div>
     </div>`;
   }).join('');
-
-  document.getElementById('withdrawalsFooter').textContent = `${allWithdrawals.length} withdrawal requests across all models`;
 }
 
 function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
   document.getElementById('tab-payments').style.display = tab==='payments' ? 'block' : 'none';
   document.getElementById('tab-withdrawals').style.display = tab==='withdrawals' ? 'block' : 'none';
+}
+
+function startCountdownTick() {
+  setInterval(() => {
+    document.querySelectorAll('[data-expire]').forEach(el => {
+      const diff = Math.max(0, Math.floor((new Date(el.dataset.expire) - new Date()) / 1000));
+      const m = Math.floor(diff/60), s = diff%60;
+      el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      if (diff === 0) el.className = el.classList.contains('m-expire') ? 'm-expired-pill' : 'expired-text';
+    });
+  }, 1000);
 }
 </script>
 </body>
